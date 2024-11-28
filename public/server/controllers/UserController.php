@@ -7,6 +7,16 @@ use Models\User;
 
 class UserController
 {
+    public function checkAuth() {
+        session_start();
+        if (!isset($_SESSION['user_id'])) {
+            http_response_code(401);
+            echo json_encode(['error' => 'Unauthorized']);
+            exit;
+        }
+        return $_SESSION['user_id'];
+    }
+
     // Регистрация нового пользователя
     public function register()
     {
@@ -56,50 +66,51 @@ class UserController
             'password' => $hashedPassword,
         ]);
 
-        // Авторизуем пользователя
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
+        session_start();
         $_SESSION['user_id'] = $userId;
+        $_SESSION['user_email'] = $data['email'];
 
-        // Возвращаем успешный ответ
-        echo json_encode(['message' => 'Регистрация успешна', 'user_id' => $userId]);
+        echo json_encode([
+            'success' => true,
+            'user' => [
+                'id' => $userId,
+                'email' => $data['email'],
+                'name' => $data['name']
+            ]
+        ]);
     }
 
     // Вход пользователя
-    public function login()
-    {
+    public function login() {
         $data = json_decode(file_get_contents('php://input'), true);
 
-        $email = $data['email'] ?? '';
-        $password = $data['password'] ?? '';
-
         $userModel = new User();
-        $user = $userModel->findByEmail($email);
+        $user = $userModel->findByEmail($data['email']);
 
-        if (!$user || !password_verify($password, $user['password'])) {
+        if (!$user || !password_verify($data['password'], $user['password'])) {
             http_response_code(401);
             echo json_encode(['error' => 'Неверный email или пароль']);
-            exit;
+            return;
         }
 
-        // Успешная авторизация
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
+        session_start();
         $_SESSION['user_id'] = $user['id'];
+        $_SESSION['user_email'] = $user['email'];
 
-        echo json_encode(['message' => 'Вход выполнен', 'user_id' => $user['id']]);
+        echo json_encode([
+            'success' => true,
+            'user' => [
+                'id' => $user['id'],
+                'email' => $user['email'],
+                'name' => $user['name']
+            ]
+        ]);
     }
 
     // Выход пользователя
-    public function logout()
-    {
-        if (session_status() == PHP_SESSION_NONE) {
-            session_start();
-        }
+    public function logout() {
+        session_start();
         session_destroy();
-
-        echo json_encode(['message' => 'Вы вышли из системы']);
+        echo json_encode(['success' => true]);
     }
 }

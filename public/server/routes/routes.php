@@ -13,6 +13,7 @@ $requestMethod = $_SERVER['REQUEST_METHOD'];
 
 // Убираем параметры из URI
 $uri = parse_url($requestUri, PHP_URL_PATH);
+$uri = preg_replace('/^\/server/', '', $uri);
 
 // Маршруты
 $routes = [
