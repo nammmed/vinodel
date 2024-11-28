@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { login } from '../services/api';
 import { Form, Button, Card, Alert } from 'react-bootstrap';
+import {Link} from "react-router";
 
 function LoginPage() {
     const [email, setEmail] = useState('');
@@ -60,7 +61,7 @@ function LoginPage() {
                         </Button>
                     </Form>
                     <p className="mt-3 text-center">
-                        Нет аккаунта? <a href="/register">Зарегистрироваться</a>
+                        Нет аккаунта? <Link to="/register">Зарегистрироваться</Link>
                     </p>
                 </Card.Body>
             </Card>

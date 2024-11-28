@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { register } from '../services/api';
 import { Form, Button, Card, Alert } from 'react-bootstrap';
+import {Link} from "react-router";
 
 function RegisterPage() {
     const [name, setName] = useState('');
@@ -72,7 +73,7 @@ function RegisterPage() {
                         </Button>
                     </Form>
                     <p className="mt-3 text-center">
-                        Уже есть аккаунт? <a href="/login">Войти</a>
+                        Уже есть аккаунт? <Link to="/login">Войти</Link>
                     </p>
                 </Card.Body>
             </Card>
