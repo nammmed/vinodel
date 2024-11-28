@@ -3,7 +3,10 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: '/',
+    baseURL: 'https://vinodel.prostoweb.su/server',
+    headers: {
+        'Content-Type': 'application/json'
+    },
     withCredentials: true,
 });
 
@@ -15,14 +18,15 @@ export const register = (name, email, password) => api.post('/register', {name, 
 export const logout = () => api.post('/logout');
 export const checkAuth = () => api.get('/check-auth');
 
-// Партии
-export const getBatches = () => api.get('/batches');
-export const getBatchById = (id) => api.get(`/batches/${id}`);
-export const createBatch = (data) => api.post('/batches', data);
-
 // Виноград
 export const getGrapes = () => api.get('/grapes');
 export const getGrapeById = (id) => api.get(`/grapes/${id}`);
 export const createGrape = (data) => api.post('/grapes', data);
 export const updateGrape = (id, data) => api.put(`/grapes/${id}`, data);
 export const deleteGrape = (id) => api.delete(`/grapes/${id}`);
+
+// Партии
+export const getBatches = () => api.get('/batches');
+export const getBatchById = (id) => api.get(`/batches/${id}`);
+export const createBatch = (data) => api.post('/batches', data);
+

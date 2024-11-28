@@ -5,7 +5,7 @@ $dbConfig = [
     'host' => 'localhost',
     'dbname' => 'cq62098_vinodel',
     'user' => 'cq62098_vinodel',
-    'password' => 'cq62098_vinodel1',
+    'password' => 'q1w2e3r4t5',
 ];
 
 try {
