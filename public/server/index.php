@@ -15,7 +15,7 @@ ini_set('session.cookie_secure', 'true');
 session_set_cookie_params([
     'lifetime' => 0,
     'path' => '/',
-    'domain' => '.prostoweb.su', // Замените на ваш домен
+    'domain' => 'vinodel.prostoweb.su', // Замените на ваш домен
     'secure' => true,
     'httponly' => true,
     'samesite' => 'None'
