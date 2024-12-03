@@ -1,5 +1,3 @@
-// src/context/AuthContext.js
-
 import React, { createContext, useState, useEffect } from 'react';
 import { checkAuth } from '../services/api';
 
@@ -13,10 +11,11 @@ export const AuthProvider = ({ children }) => {
         checkAuth()
             .then(() => {
                 setAuthenticated(true);
-                setLoading(false);
             })
             .catch(() => {
                 setAuthenticated(false);
+            })
+            .finally(() => {
                 setLoading(false);
             });
     }, []);

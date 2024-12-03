@@ -7,14 +7,14 @@ use Models\User;
 
 class UserController
 {
-    public function checkAuth() {
+    public function checkAuthStatus() {
         session_start();
-        if (!isset($_SESSION['user_id'])) {
+        if (isset($_SESSION['user_id'])) {
+            echo json_encode(['authenticated' => true]);
+        } else {
             http_response_code(401);
-            echo json_encode(['error' => 'Unauthorized']);
-            exit;
+            echo json_encode(['authenticated' => false]);
         }
-        return $_SESSION['user_id'];
     }
 
     // Регистрация нового пользователя

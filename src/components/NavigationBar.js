@@ -1,13 +1,22 @@
-import React, { useContext } from 'react';
-import { Navbar, Nav, NavDropdown, Container } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+import React, {useContext} from 'react';
+import {Navbar, Nav, NavDropdown, Container} from 'react-bootstrap';
+import {Link, useNavigate} from 'react-router-dom';
+import {AuthContext} from '../context/AuthContext';
+import {logout} from "../services/api";
 
 function NavigationBar() {
-    const { authenticated, setAuthenticated } = useContext(AuthContext);
+    const {authenticated, setAuthenticated} = useContext(AuthContext);
+    const navigate = useNavigate();
 
-    const handleLogout = async () => {
-        setAuthenticated(false);
+    const handleLogout = () => {
+        logout()
+            .then(() => {
+                setAuthenticated(false);
+                navigate('/login'); // Перенаправляем на страницу входа
+            })
+            .catch((err) => {
+                console.error('Ошибка при выходе:', err);
+            });
     };
 
     return (
@@ -15,7 +24,7 @@ function NavigationBar() {
             <Container>
                 <Navbar.Brand as={Link} to="/">Винодел</Navbar.Brand>
 
-                <Navbar.Toggle aria-controls="basic-navbar-nav" />
+                <Navbar.Toggle aria-controls="basic-navbar-nav"/>
                 <Navbar.Collapse id="basic-navbar-nav">
                     {authenticated ? (
                         <>
@@ -38,7 +47,7 @@ function NavigationBar() {
                                     <NavDropdown.Item as={Link} to="/batches/new">
                                         Создать партию
                                     </NavDropdown.Item>
-                                    <NavDropdown.Divider />
+                                    <NavDropdown.Divider/>
                                     <NavDropdown.Item as={Link} to="/blends">
                                         Купажи
                                     </NavDropdown.Item>

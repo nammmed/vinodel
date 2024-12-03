@@ -35,6 +35,7 @@ $routes = [
         // Добавьте другие POST-маршруты
     ],
     'GET' => [
+        '/check-auth' => [UserController::class, 'checkAuthStatus'],
         '/grapes' => [GrapeController::class, 'index'],
         '/grapes/(\d+)' => [GrapeController::class, 'show'],
 

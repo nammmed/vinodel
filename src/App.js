@@ -9,11 +9,13 @@ import RegisterPage from './pages/RegisterPage';
 import Dashboard from './pages/Dashboard';
 import GrapeList from "./pages/GrapeList";
 import GrapeEdit from "./pages/GrapeEdit";
+import { useContext } from 'react';
+import { AuthContext } from './context/AuthContext';
 
 // Защищенный маршрут - редиректит на логин, если пользователь не авторизован
 const ProtectedRoute = ({children}) => {
-    const isAuthenticated = localStorage.getItem('authenticated') === 'true';
-    return isAuthenticated ? children : <Navigate to="/login"/>;
+    const { authenticated } = useContext(AuthContext);
+    return authenticated ? children : <Navigate to="/login" />;
 };
 
 function App() {
