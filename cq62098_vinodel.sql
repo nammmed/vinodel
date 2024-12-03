@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: localhost
--- Время создания: Дек 01 2024 г., 23:38
+-- Время создания: Дек 03 2024 г., 13:07
 -- Версия сервера: 5.7.35-38
 -- Версия PHP: 7.4.33
 
@@ -145,6 +145,25 @@ CREATE TABLE IF NOT EXISTS `recipes` (
 -- --------------------------------------------------------
 
 --
+-- Структура таблицы `recipe_ingredients`
+--
+
+CREATE TABLE IF NOT EXISTS `recipe_ingredients` (
+                                                    `id` int(11) NOT NULL AUTO_INCREMENT,
+                                                    `recipe_id` int(11) NOT NULL,
+                                                    `component_type` enum('batch','grape') NOT NULL,
+                                                    `component_id` int(11) NOT NULL,
+                                                    `percentage` decimal(5,2) DEFAULT NULL,
+                                                    `volume` decimal(10,2) DEFAULT NULL,
+                                                    `notes` text,
+                                                    PRIMARY KEY (`id`),
+                                                    KEY `idx_recipe_ingredients_recipe_id` (`recipe_id`),
+                                                    KEY `idx_recipe_ingredients_component` (`component_type`,`component_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
 -- Структура таблицы `recipe_processes`
 --
 
@@ -219,6 +238,12 @@ ALTER TABLE `process_logs`
 --
 ALTER TABLE `recipes`
     ADD CONSTRAINT `recipes_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Ограничения внешнего ключа таблицы `recipe_ingredients`
+--
+ALTER TABLE `recipe_ingredients`
+    ADD CONSTRAINT `recipe_ingredients_ibfk_1` FOREIGN KEY (`recipe_id`) REFERENCES `recipes` (`id`) ON DELETE CASCADE;
 
 --
 -- Ограничения внешнего ключа таблицы `recipe_processes`
