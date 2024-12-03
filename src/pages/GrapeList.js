@@ -1,15 +1,19 @@
 // src/pages/GrapeList.js
 
-import React, { useState, useEffect } from 'react';
-import { Table, Card, Button, Alert, Modal } from 'react-bootstrap'; // добавляем Modal
-import { Link } from 'react-router-dom';
-import { getGrapes, deleteGrape } from '../services/api';
+import React, {useState, useEffect} from 'react';
+import {Table, Card, Button, ButtonGroup, Alert, Modal} from 'react-bootstrap';
+import {getGrapes, createGrape, updateGrape, deleteGrape} from '../services/api';
+import GrapeForm from '../components/GrapeForm';
 
 function GrapeList() {
     const [grapes, setGrapes] = useState([]);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
-    // Состояния для модального окна подтверждения удаления
+    // Состояния для модальных окон
+    const [showModal, setShowModal] = useState(false);
+    const [modalType, setModalType] = useState(''); // 'add' или 'edit'
+    const [currentGrape, setCurrentGrape] = useState(null);
+
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [grapeToDelete, setGrapeToDelete] = useState(null);
 
@@ -28,35 +32,49 @@ function GrapeList() {
         }
     };
 
-    // Функция для открытия модального окна подтверждения удаления
+    // Функции для открытия и закрытия модальных окон
+    const handleShowModal = (type, grape = null) => {
+        setModalType(type);
+        setCurrentGrape(grape);
+        setShowModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setCurrentGrape(null);
+    };
+
+    // Обработчик для добавления нового винограда
+    const handleAddGrape = async (grapeData) => {
+        await createGrape(grapeData);
+        loadGrapes();
+    };
+
+    // Обработчик для обновления существующего винограда
+    const handleUpdateGrape = async (grapeData) => {
+        await updateGrape(currentGrape.id, grapeData);
+        loadGrapes();
+    };
+
+    // Обработчики удаления
     const handleShowDeleteModal = (grape) => {
         setGrapeToDelete(grape);
         setShowDeleteModal(true);
     };
 
-    // Функция для закрытия модального окна
     const handleCloseDeleteModal = () => {
-        setShowDeleteModal(false);
         setGrapeToDelete(null);
+        setShowDeleteModal(false);
     };
 
-    // Функция удаления
     const handleDelete = async () => {
         try {
             await deleteGrape(grapeToDelete.id);
-            setGrapes(grapes.filter(g => g.id !== grapeToDelete.id));
+            setGrapes(grapes.filter((g) => g.id !== grapeToDelete.id));
             handleCloseDeleteModal();
         } catch (err) {
             setError('Ошибка при удалении винограда');
         }
-    };
-
-
-    // Функция редактирования
-    const handleEdit = (grape) => {
-        // Пока просто перенаправляем на страницу редактирования
-        // Позже можно сделать модальное окно или отдельную страницу
-        window.location.href = `/grapes/${grape.id}/edit`;
     };
 
     if (loading) {
@@ -67,11 +85,7 @@ function GrapeList() {
         <div>
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h2>Виноград в наличии</h2>
-                <Button
-                    as={Link}
-                    to="/grapes/new"
-                    variant="success"
-                >
+                <Button variant="success" onClick={() => handleShowModal('add')}>
                     Добавить виноград
                 </Button>
             </div>
@@ -80,7 +94,7 @@ function GrapeList() {
 
             <Card>
                 <Card.Body>
-                    <Table striped hover responsive>
+                    <Table striped hover responsive className="table-fixed">
                         <thead>
                         <tr>
                             <th>Сорт</th>
@@ -100,7 +114,7 @@ function GrapeList() {
                                 </td>
                             </tr>
                         ) : (
-                            grapes.map(grape => (
+                            grapes.map((grape) => (
                                 <tr key={grape.id}>
                                     <td>{grape.sort}</td>
                                     <td>{grape.quantity}</td>
@@ -109,21 +123,23 @@ function GrapeList() {
                                     <td>{grape.supplier || '-'}</td>
                                     <td>{grape.notes || '-'}</td>
                                     <td>
-                                        <Button
-                                            variant="outline-primary"
-                                            size="sm"
-                                            className="me-2"
-                                            onClick={() => handleEdit(grape)}
-                                        >
-                                            Изменить
-                                        </Button>
-                                        <Button
-                                            variant="outline-danger"
-                                            size="sm"
-                                            onClick={() => handleShowDeleteModal(grape)}
-                                        >
-                                            Удалить
-                                        </Button>
+                                        <ButtonGroup>
+                                            <Button
+                                                variant="outline-primary"
+                                                size="sm"
+                                                className="me-2"
+                                                onClick={() => handleShowModal('edit', grape)}
+                                            >
+                                                Изменить
+                                            </Button>
+                                            <Button
+                                                variant="outline-danger"
+                                                size="sm"
+                                                onClick={() => handleShowDeleteModal(grape)}
+                                            >
+                                                Удалить
+                                            </Button>
+                                        </ButtonGroup>
                                     </td>
                                 </tr>
                             ))
@@ -133,6 +149,22 @@ function GrapeList() {
                 </Card.Body>
             </Card>
 
+            {/* Модальное окно для добавления и редактирования винограда */}
+            <Modal show={showModal} onHide={handleCloseModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>
+                        {modalType === 'add' ? 'Добавление винограда' : 'Редактирование винограда'}
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <GrapeForm
+                        initialData={modalType === 'edit' ? currentGrape : null}
+                        onSubmit={modalType === 'add' ? handleAddGrape : handleUpdateGrape}
+                        onClose={handleCloseModal}
+                    />
+                </Modal.Body>
+            </Modal>
+
             {/* Модальное окно подтверждения удаления */}
             <Modal show={showDeleteModal} onHide={handleCloseDeleteModal}>
                 <Modal.Header closeButton>
@@ -140,7 +172,10 @@ function GrapeList() {
                 </Modal.Header>
                 <Modal.Body>
                     {grapeToDelete && (
-                        <p>Вы действительно хотите удалить запись о винограде сорта "{grapeToDelete.sort}"?</p>
+                        <p>
+                            Вы действительно хотите удалить запись о винограде сорта "
+                            {grapeToDelete.sort}"?
+                        </p>
                     )}
                 </Modal.Body>
                 <Modal.Footer>

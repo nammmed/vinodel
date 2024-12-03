@@ -31,14 +31,7 @@ function NavigationBar() {
                             <Nav className="me-auto">
                                 <Nav.Link as={Link} to="/">Дашборд</Nav.Link>
 
-                                <NavDropdown title="Виноград" id="grape-nav-dropdown">
-                                    <NavDropdown.Item as={Link} to="/grapes">
-                                        Весь виноград
-                                    </NavDropdown.Item>
-                                    <NavDropdown.Item as={Link} to="/grapes/new">
-                                        Добавить виноград
-                                    </NavDropdown.Item>
-                                </NavDropdown>
+                                <Nav.Link as={Link} to="/grapes/">Виноград</Nav.Link>
 
                                 <NavDropdown title="Партии" id="batch-nav-dropdown">
                                     <NavDropdown.Item as={Link} to="/batches">

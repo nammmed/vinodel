@@ -8,15 +8,13 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import Dashboard from './pages/Dashboard';
 import GrapeList from "./pages/GrapeList";
-import GrapeEdit from "./pages/GrapeEdit";
-import { useContext } from 'react';
-import { AuthContext } from './context/AuthContext';
-import GrapeCreate from "./pages/GrapeCreate";
+import {useContext} from 'react';
+import {AuthContext} from './context/AuthContext';
 
 // Защищенный маршрут - редиректит на логин, если пользователь не авторизован
 const ProtectedRoute = ({children}) => {
-    const { authenticated } = useContext(AuthContext);
-    return authenticated ? children : <Navigate to="/login" />;
+    const {authenticated} = useContext(AuthContext);
+    return authenticated ? children : <Navigate to="/login"/>;
 };
 
 function App() {
@@ -42,18 +40,6 @@ function App() {
                             <ProtectedRoute>
                                 <GrapeList/>
                             </ProtectedRoute>
-                        }/>
-                        <Route path="/grapes/:id/edit" element={
-                            <ProtectedRoute>
-                                <GrapeEdit/>
-                            </ProtectedRoute>
-                        }/>
-                        <Route path="/grapes/new" element={
-                            <Route path="/grapes/new" element={
-                                <ProtectedRoute>
-                                    <GrapeCreate />
-                                </ProtectedRoute>
-                            }/>
                         }/>
 
                         {/* Партии */}
