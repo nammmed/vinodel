@@ -11,6 +11,7 @@ import GrapeList from "./pages/GrapeList";
 import GrapeEdit from "./pages/GrapeEdit";
 import { useContext } from 'react';
 import { AuthContext } from './context/AuthContext';
+import GrapeCreate from "./pages/GrapeCreate";
 
 // Защищенный маршрут - редиректит на логин, если пользователь не авторизован
 const ProtectedRoute = ({children}) => {
@@ -48,9 +49,11 @@ function App() {
                             </ProtectedRoute>
                         }/>
                         <Route path="/grapes/new" element={
-                            <ProtectedRoute>
-                                <div>Добавление винограда (компонент пока не создан)</div>
-                            </ProtectedRoute>
+                            <Route path="/grapes/new" element={
+                                <ProtectedRoute>
+                                    <GrapeCreate />
+                                </ProtectedRoute>
+                            }/>
                         }/>
 
                         {/* Партии */}

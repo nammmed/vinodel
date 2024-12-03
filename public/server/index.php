@@ -1,4 +1,6 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 header('Access-Control-Allow-Origin: http://localhost:3000');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
@@ -26,10 +28,12 @@ require_once 'config/config.php';
 // Подключение автозагрузки, если вы настроили ее, или вручную подключите нужные файлы
 require_once 'models/BaseModel.php';
 require_once 'models/User.php';
+require_once 'models/Batch.php';
+require_once 'models/Grape.php';
 require_once 'controllers/UserController.php';
 require_once 'controllers/BaseController.php';
 require_once 'controllers/BatchController.php';
-require_once 'models/Batch.php';
+require_once 'controllers/GrapeController.php';
 // Подключите остальные модели и контроллеры по мере необходимости
 
 require_once 'routes/routes.php';
