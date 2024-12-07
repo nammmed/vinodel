@@ -229,16 +229,17 @@ class BatchController extends BaseController
                 'notes' => null,
             ]);
         }
-
+        // тип дрожжей и способ винификации надо убрать из таблицы измерений куда-то еще, потому что в измерениях только числовые данные
+        // пока просто сохранили эти данные не в значении, а в заметках
         // Тип дрожжей
         if (!empty($data['yeast_type']) && trim($data['yeast_type']) != '') {
             $measurementModel->create([
                 'process_log_id' => $processLogId,
                 'date' => date('Y-m-d H:i:s'),
                 'type' => 'yeast_type',
-                'value' => $data['yeast_type'],
+                'value' => 0,
                 'unit' => '',
-                'notes' => null,
+                'notes' => $data['yeast_type'],
             ]);
         }
 
@@ -259,9 +260,9 @@ class BatchController extends BaseController
             'process_log_id' => $processLogId,
             'date' => date('Y-m-d H:i:s'),
             'type' => 'vinification_method',
-            'value' => $data['vinification_method'] == 'red' ? 1 : 0,
+            'value' => 0,
             'unit' => '',
-            'notes' => null,
+            'notes' => $data['vinification_method'],
         ]);
 
         // Уменьшаем количество винограда
