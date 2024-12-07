@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: localhost
--- Время создания: Дек 03 2024 г., 13:07
+-- Время создания: Дек 07 2024 г., 15:16
 -- Версия сервера: 5.7.35-38
 -- Версия PHP: 7.4.33
 
@@ -184,6 +184,65 @@ CREATE TABLE IF NOT EXISTS `recipe_processes` (
 -- --------------------------------------------------------
 
 --
+-- Структура таблицы `supplies`
+--
+
+CREATE TABLE IF NOT EXISTS `supplies` (
+                                          `id` int(11) NOT NULL AUTO_INCREMENT,
+                                          `user_id` int(11) NOT NULL,
+                                          `name` varchar(255) NOT NULL,
+                                          `type` varchar(50) NOT NULL,
+                                          `quantity` int(11) NOT NULL DEFAULT '0',
+                                          `unit` varchar(50) DEFAULT 'шт.',
+                                          `notes` text,
+                                          `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+                                          PRIMARY KEY (`id`),
+                                          KEY `user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `supply_purchases`
+--
+
+CREATE TABLE IF NOT EXISTS `supply_purchases` (
+                                                  `id` int(11) NOT NULL AUTO_INCREMENT,
+                                                  `supply_id` int(11) NOT NULL,
+                                                  `user_id` int(11) NOT NULL,
+                                                  `date` datetime NOT NULL,
+                                                  `quantity` int(11) NOT NULL,
+                                                  `cost` decimal(10,2) DEFAULT NULL,
+                                                  `supplier` varchar(255) DEFAULT NULL,
+                                                  `notes` text,
+                                                  PRIMARY KEY (`id`),
+                                                  KEY `supply_id` (`supply_id`),
+                                                  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Структура таблицы `supply_usages`
+--
+
+CREATE TABLE IF NOT EXISTS `supply_usages` (
+                                               `id` int(11) NOT NULL AUTO_INCREMENT,
+                                               `supply_id` int(11) NOT NULL,
+                                               `batch_id` int(11) NOT NULL,
+                                               `user_id` int(11) NOT NULL,
+                                               `date` datetime NOT NULL,
+                                               `quantity` int(11) NOT NULL,
+                                               `notes` text,
+                                               PRIMARY KEY (`id`),
+                                               KEY `supply_id` (`supply_id`),
+                                               KEY `batch_id` (`batch_id`),
+                                               KEY `user_id` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
 -- Структура таблицы `users`
 --
 
@@ -251,3 +310,24 @@ ALTER TABLE `recipe_ingredients`
 ALTER TABLE `recipe_processes`
     ADD CONSTRAINT `recipe_processes_ibfk_1` FOREIGN KEY (`recipe_id`) REFERENCES `recipes` (`id`) ON DELETE CASCADE,
     ADD CONSTRAINT `recipe_processes_ibfk_2` FOREIGN KEY (`process_id`) REFERENCES `processes` (`id`) ON DELETE CASCADE;
+
+--
+-- Ограничения внешнего ключа таблицы `supplies`
+--
+ALTER TABLE `supplies`
+    ADD CONSTRAINT `supplies_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Ограничения внешнего ключа таблицы `supply_purchases`
+--
+ALTER TABLE `supply_purchases`
+    ADD CONSTRAINT `supply_purchases_ibfk_1` FOREIGN KEY (`supply_id`) REFERENCES `supplies` (`id`) ON DELETE CASCADE,
+    ADD CONSTRAINT `supply_purchases_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Ограничения внешнего ключа таблицы `supply_usages`
+--
+ALTER TABLE `supply_usages`
+    ADD CONSTRAINT `supply_usages_ibfk_1` FOREIGN KEY (`supply_id`) REFERENCES `supplies` (`id`) ON DELETE CASCADE,
+    ADD CONSTRAINT `supply_usages_ibfk_2` FOREIGN KEY (`batch_id`) REFERENCES `batches` (`id`) ON DELETE CASCADE,
+    ADD CONSTRAINT `supply_usages_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
