@@ -32,7 +32,7 @@ $routes = [
 
         '/process-logs/(\d+)/measurements' => [MeasurementController::class, 'store'],
 
-        // Добавьте другие POST-маршруты
+        '/grapes/(\d+)/vinify' => [BatchController::class, 'vinifyGrape'],
     ],
     'GET' => [
         '/check-auth' => [UserController::class, 'checkAuthStatus'],
@@ -47,14 +47,11 @@ $routes = [
         '/processes' => [ProcessController::class, 'index'],
 
         '/process-logs/(\d+)/measurements' => [MeasurementController::class, 'index'],
-
-        // Добавьте другие GET-маршруты
     ],
     'PUT' => [
         '/grapes/(\d+)' => [GrapeController::class, 'update'],
         '/batches/(\d+)' => [BatchController::class, 'update'],
         '/processes/(\d+)' => [ProcessController::class, 'update'],
-        // Добавьте другие PUT-маршруты
     ],
     'DELETE' => [
         '/grapes/(\d+)' => [GrapeController::class, 'destroy'],
@@ -63,7 +60,6 @@ $routes = [
         '/processes/(\d+)' => [ProcessController::class, 'destroy'],
         '/batches/(\d+)/processes/(\d+)' => [ProcessLogController::class, 'destroy'],
         '/process-logs/(\d+)/measurements/(\d+)' => [MeasurementController::class, 'destroy'],
-        // Добавьте другие DELETE-маршруты
     ],
 ];
 

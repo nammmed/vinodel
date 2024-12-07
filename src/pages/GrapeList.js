@@ -2,8 +2,9 @@
 
 import React, {useState, useEffect} from 'react';
 import {Table, Card, Button, ButtonGroup, Alert, Modal} from 'react-bootstrap';
-import {getGrapes, createGrape, updateGrape, deleteGrape} from '../services/api';
+import {getGrapes, createGrape, updateGrape, deleteGrape, createBatchFromGrape} from '../services/api';
 import GrapeForm from '../components/GrapeForm';
+import VinifyForm from "../components/VinifyForm";
 
 function GrapeList() {
     const [grapes, setGrapes] = useState([]);
@@ -12,6 +13,7 @@ function GrapeList() {
     // Состояния для модальных окон
     const [showModal, setShowModal] = useState(false);
     const [modalType, setModalType] = useState(''); // 'add' или 'edit'
+    const [showVinifyModal, setShowVinifyModal] = useState(false);
     const [currentGrape, setCurrentGrape] = useState(null);
 
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -77,6 +79,26 @@ function GrapeList() {
         }
     };
 
+    const handleVinify = (grape) => {
+        setCurrentGrape(grape);
+        setShowVinifyModal(true);
+    };
+
+    const handleCloseVinifyModal = () => {
+        setShowVinifyModal(false);
+        setCurrentGrape(null);
+    };
+
+    const handleVinifySubmit = async (formData) => {
+        try {
+            await createBatchFromGrape(currentGrape.id, formData);
+            setShowVinifyModal(false);
+            loadGrapes(); // Обновляем список винограда после создания партии
+        } catch (error) {
+            setError('Ошибка при создании партии');
+        }
+    };
+
     if (loading) {
         return <div>Загрузка...</div>;
     }
@@ -125,6 +147,13 @@ function GrapeList() {
                                     <td>
                                         <ButtonGroup>
                                             <Button
+                                                variant="primary"
+                                                size="sm"
+                                                onClick={() => handleVinify(grape)}
+                                            >
+                                                Винифицировать
+                                            </Button>
+                                            <Button
                                                 variant="outline-primary"
                                                 size="sm"
                                                 className="me-2"
@@ -162,6 +191,22 @@ function GrapeList() {
                         onSubmit={modalType === 'add' ? handleAddGrape : handleUpdateGrape}
                         onClose={handleCloseModal}
                     />
+                </Modal.Body>
+            </Modal>
+
+            {/* Модальное окно для винификации винограда */}
+            <Modal show={showVinifyModal} onHide={handleCloseVinifyModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Винификация винограда {currentGrape?.sort}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {currentGrape && (
+                        <VinifyForm
+                            grape={currentGrape}
+                            onSubmit={handleVinifySubmit}
+                            onClose={handleCloseVinifyModal}
+                        />
+                    )}
                 </Modal.Body>
             </Modal>
 

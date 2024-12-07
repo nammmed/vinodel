@@ -68,4 +68,11 @@ class Process extends BaseModel
         $stmt = $this->db->prepare('DELETE FROM processes WHERE id = :id');
         $stmt->execute(['id' => $id]);
     }
+
+    public function findByName($name)
+    {
+        $stmt = $this->db->prepare('SELECT * FROM processes WHERE name = :name');
+        $stmt->execute(['name' => $name]);
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
+    }
 }

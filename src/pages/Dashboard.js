@@ -1,9 +1,10 @@
-import React, {useState, useEffect} from 'react';
-import {Row, Col, Card, Table, Button, Modal} from 'react-bootstrap';
-import {Link} from 'react-router-dom';
-import api, {createGrape} from '../services/api';
-import {useMediaQuery} from 'react-responsive';
+import React, { useState, useEffect } from 'react';
+import { Row, Col, Card, Table, Button, Modal } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import api, { createGrape, createBatchFromGrape } from '../services/api';
+import { useMediaQuery } from 'react-responsive';
 import GrapeForm from '../components/GrapeForm';
+import VinifyForm from '../components/VinifyForm';
 
 function Dashboard() {
     const [batches, setBatches] = useState([]);
@@ -11,7 +12,9 @@ function Dashboard() {
     const [showGrapeModal, setShowGrapeModal] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
-    const isMobile = useMediaQuery({maxWidth: 767});
+    const isMobile = useMediaQuery({ maxWidth: 767 });
+    const [showVinifyModal, setShowVinifyModal] = useState(false);
+    const [selectedGrape, setSelectedGrape] = useState(null);
 
     const handleShowGrapeModal = () => {
         setShowGrapeModal(true);
@@ -41,11 +44,36 @@ function Dashboard() {
         }
     };
 
+    const fetchBatches = async () => {
+        try {
+            const batchesResponse = await api.get('/batches');
+            setBatches(batchesResponse.data);
+        } catch (error) {
+            console.error('Ошибка загрузки данных о партиях:', error);
+        }
+    };
+
+    const handleVinify = (grape) => {
+        setSelectedGrape(grape);
+        setShowVinifyModal(true);
+    };
+
+    const handleVinifySubmit = async (formData) => {
+        try {
+            await createBatchFromGrape(selectedGrape.id, formData);
+            setShowVinifyModal(false);
+            // Обновляем данные о винограде и партиях
+            fetchGrapes();
+            fetchBatches();
+        } catch (error) {
+            console.error('Ошибка при создании партии', error);
+        }
+    };
+
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const batchesResponse = await api.get('/batches');
-                setBatches(batchesResponse.data);
+                await fetchBatches();
                 await fetchGrapes();
                 setLoading(false);
             } catch (error) {
@@ -93,7 +121,7 @@ function Dashboard() {
                         <Card.Body>
                             {isMobile ? (
                                 batches.length > 0 ? (
-                                    batches.map(batch => (
+                                    batches.map((batch) => (
                                         <Card key={batch.id} className="mb-2">
                                             <Card.Body>
                                                 <Card.Title>{batch.name}</Card.Title>
@@ -121,7 +149,7 @@ function Dashboard() {
                                     </thead>
                                     <tbody>
                                     {Array.isArray(batches) && batches.length > 0 ? (
-                                        batches.map(batch => (
+                                        batches.map((batch) => (
                                             <tr key={batch.id}>
                                                 <td>{batch.name}</td>
                                                 <td className="d-none d-md-table-cell">{batch.initial_volume}</td>
@@ -175,7 +203,7 @@ function Dashboard() {
                         <Card.Body>
                             {isMobile ? (
                                 grapes.length > 0 ? (
-                                    grapes.map(grape => (
+                                    grapes.map((grape) => (
                                         <Card key={grape.id} className="mb-2">
                                             <Card.Body>
                                                 <Card.Title>{grape.sort}</Card.Title>
@@ -199,21 +227,33 @@ function Dashboard() {
                                         <th>Количество (кг)</th>
                                         <th className="d-none d-md-table-cell">Дата закупки</th>
                                         <th>Поставщик</th>
+                                        <th>Действия</th>
                                     </tr>
                                     </thead>
                                     <tbody>
                                     {Array.isArray(grapes) && grapes.length > 0 ? (
-                                        grapes.map(grape => (
+                                        grapes.map((grape) => (
                                             <tr key={grape.id}>
                                                 <td>{grape.sort}</td>
                                                 <td>{grape.quantity}</td>
-                                                <td className="d-none d-md-table-cell">{new Date(grape.date_purchased).toLocaleDateString()}</td>
+                                                <td className="d-none d-md-table-cell">
+                                                    {new Date(grape.date_purchased).toLocaleDateString()}
+                                                </td>
                                                 <td>{grape.supplier}</td>
+                                                <td>
+                                                    <Button
+                                                        variant="primary"
+                                                        size="sm"
+                                                        onClick={() => handleVinify(grape)}
+                                                    >
+                                                        Винифицировать
+                                                    </Button>
+                                                </td>
                                             </tr>
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan="4" className="text-center">
+                                            <td colSpan="5" className="text-center">
                                                 Нет данных о винограде
                                             </td>
                                         </tr>
@@ -240,6 +280,21 @@ function Dashboard() {
                 </Modal.Body>
             </Modal>
 
+            {/* Модальное окно для винификации винограда */}
+            <Modal show={showVinifyModal} onHide={() => setShowVinifyModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>
+                        Винификация винограда {selectedGrape?.sort}
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <VinifyForm
+                        grape={selectedGrape}
+                        onSubmit={handleVinifySubmit}
+                        onClose={() => setShowVinifyModal(false)}
+                    />
+                </Modal.Body>
+            </Modal>
         </div>
     );
 }
