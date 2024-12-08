@@ -27,6 +27,7 @@ $routes = [
         '/batches' => [BatchController::class, 'store'],
         '/batches/(\d+)/components' => [BatchComponentController::class, 'store'],
         '/batches/(\d+)/processes' => [ProcessLogController::class, 'store'],
+        '/batches/(\d+)/split' => [BatchController::class, 'split'],
 
         '/processes' => [ProcessController::class, 'store'],
 

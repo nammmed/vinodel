@@ -31,7 +31,7 @@ class Batch extends BaseModel
     // Получить все партии пользователя
     public function getAllByUser($userId)
     {
-        $stmt = $this->db->prepare('SELECT * FROM batches WHERE user_id = :user_id');
+        $stmt = $this->db->prepare('SELECT * FROM batches WHERE user_id = :user_id AND current_volume > 0');
         $stmt->execute(['user_id' => $userId]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
