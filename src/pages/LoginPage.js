@@ -5,7 +5,7 @@ import {useNavigate} from 'react-router-dom';
 import {AuthContext} from '../context/AuthContext';
 import {login} from '../services/api';
 import {Form, Button, Card, Alert} from 'react-bootstrap';
-import {Link} from "react-router";
+import {Link} from "react-router-dom";
 import {toast} from "react-toastify";
 
 function LoginPage() {
