@@ -1,9 +1,8 @@
 // src/components/Dashboard/WineBatches.js
 import React, {useState} from 'react';
-import {Row, Col, Card, Table, Button, Form} from 'react-bootstrap';
+import {Row, Col, Card, Table, Button, Form, Alert} from 'react-bootstrap';
 import {Link} from 'react-router-dom';
 import SplitBatchModal from '../splitBatchModal';
-import {Alert} from "bootstrap";
 import {toast} from "react-toastify";
 
 function WineBatches({ batches, onSplitBatch, error, selectedBatches, onBatchSelect }) {
