@@ -6,11 +6,11 @@ import {AuthContext} from '../context/AuthContext';
 import {login} from '../services/api';
 import {Form, Button, Card, Alert} from 'react-bootstrap';
 import {Link} from "react-router";
+import {toast} from "react-toastify";
 
 function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
     const {setAuthenticated} = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -23,7 +23,7 @@ function LoginPage() {
                 navigate('/');
             })
             .catch((err) => {
-                setError(err.response?.data?.error || 'Ошибка при входе');
+                toast.error(err.response?.data?.error || 'Ошибка при входе');
             });
     };
 
@@ -32,7 +32,6 @@ function LoginPage() {
             <Card style={{width: '400px'}}>
                 <Card.Body>
                     <Card.Title>Вход</Card.Title>
-                    {error && <Alert variant="danger">{error}</Alert>}
                     <Form onSubmit={handleLogin}>
                         <Form.Group controlId="formEmail">
                             <Form.Label>Email</Form.Label>

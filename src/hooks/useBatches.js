@@ -8,6 +8,7 @@ const useBatches = () => {
     const [error, setError] = useState(null);
 
     const fetchBatches = async () => {
+        setLoading(true);
         try {
             const response = await api.get('/batches');
             setBatches(response.data);
@@ -37,7 +38,7 @@ const useBatches = () => {
         fetchBatches();
     }, []);
 
-    return {batches, loading, error, handleSplitBatch};
+    return {batches, loading, error, handleSplitBatch, fetchBatches};
 };
 
 export default useBatches;

@@ -6,12 +6,12 @@ import { AuthContext } from '../context/AuthContext';
 import { register } from '../services/api';
 import { Form, Button, Card, Alert } from 'react-bootstrap';
 import {Link} from "react-router";
+import {toast} from "react-toastify";
 
 function RegisterPage() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
     const { setAuthenticated } = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -24,7 +24,7 @@ function RegisterPage() {
                 navigate('/');
             })
             .catch((err) => {
-                setError(err.response?.data?.error || 'Ошибка при регистрации');
+                toast.error(err.response?.data?.error || 'Ошибка при регистрации');
             });
     };
 
@@ -33,7 +33,6 @@ function RegisterPage() {
             <Card style={{ width: '400px' }}>
                 <Card.Body>
                     <Card.Title>Регистрация</Card.Title>
-                    {error && <Alert variant="danger">{error}</Alert>}
                     <Form onSubmit={handleRegister}>
                         <Form.Group controlId="formName">
                             <Form.Label>Имя</Form.Label>

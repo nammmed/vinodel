@@ -1,10 +1,10 @@
 import {Modal, Row, Col, Alert, Form, Button, ProgressBar} from "react-bootstrap";
 import React, {useEffect, useState} from "react";
 import {TrashFill} from 'react-bootstrap-icons'
+import {toast} from "react-toastify";
 
-function SplitBatchModal({batch, onClose, onSplit, error}) {
+function SplitBatchModal({batch, onClose, onSplit}) {
     const [newBatches, setNewBatches] = useState([]);
-    const [localError, setLocalError] = useState('');
     const [processType, setProcessType] = useState('Разделение партии');
     const [customProcessType, setCustomProcessType] = useState('');
 
@@ -77,42 +77,36 @@ function SplitBatchModal({batch, onClose, onSplit, error}) {
 // Обработчик отправки формы
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLocalError('');
 
         const validationErrors = [];
+        if (!validateVolumes(newBatches, batch.current_volume)) {
+            validationErrors.push('Необходимо распределить весь доступный объем.');
+        }
 
         // Проверка названий
-        for (const newBatch of newBatches) {
+        newBatches.forEach((newBatch, index) => {
             if (!newBatch.name.trim()) {
-                validationErrors.push('Название партии не может быть пустым');
+                validationErrors.push(`Название для партии №${index + 1} не может быть пустым.`);
             }
-        }
+        });
 
-        // Проверка объемов
-        if (!validateVolumes(newBatches, batch.current_volume)) {
-            validationErrors.push('Необходимо распределить весь доступный объем');
-        }
-
-        // Проверка типа процесса
+        // Проверка, что для типа процесса "Другое" введено кастомное название
         if (processType === 'Другое' && !customProcessType.trim()) {
-            validationErrors.push('Введите название процесса');
+            validationErrors.push('Введите название для типа процесса "Другое".');
         }
 
         if (validationErrors.length > 0) {
-            setLocalError(validationErrors.join('\n'));
+            // Показываем каждую ошибку валидации в отдельном тосте
+            validationErrors.forEach(errorMsg => toast.warn(errorMsg));
             return;
         }
 
-        try {
-            const dataToSend = {
-                batchId: batch.id,
-                newBatches,
-                processType: processType === 'Другое' ? customProcessType : processType
-            };
-            await onSplit(dataToSend);
-        } catch (error) {
-            setLocalError(error.message);
-        }
+        const dataToSend = {
+            batchId: batch.id,
+            newBatches,
+            processType: processType === 'Другое' ? customProcessType : processType,
+        };
+        onSplit(dataToSend);
     };
 
     // Вычисление остатка
@@ -212,12 +206,6 @@ function SplitBatchModal({batch, onClose, onSplit, error}) {
             </div>
 
             <Modal.Body>
-                {(error || localError) && (
-                    <Alert variant="danger">
-                        {error || localError}
-                    </Alert>
-                )}
-
                 <Form onSubmit={handleSubmit}>
                     <Form.Group controlId="processType" className="mb-3">
                         <Form.Label>Тип процесса</Form.Label>

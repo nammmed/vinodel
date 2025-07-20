@@ -10,6 +10,8 @@ import Dashboard from './pages/Dashboard';
 import GrapeList from "./pages/GrapeList";
 import {useContext} from 'react';
 import {AuthContext} from './context/AuthContext';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 // Защищенный маршрут - редиректит на логин, если пользователь не авторизован
 const ProtectedRoute = ({children}) => {
@@ -79,6 +81,17 @@ function App() {
                         }/>
                     </Routes>
                 </div>
+                <ToastContainer
+                    position="top-right"
+                    autoClose={5000}
+                    hideProgressBar={false}
+                    newestOnTop={false}
+                    closeOnClick
+                    rtl={false}
+                    pauseOnFocusLoss
+                    draggable
+                    pauseOnHover
+                />
             </Router>
         </AuthProvider>
     );

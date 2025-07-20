@@ -1,23 +1,23 @@
 // src/components/Dashboard/WineBatches.js
-import React, { useState } from 'react';
-import { Row, Col, Card, Table, Button } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import React, {useState} from 'react';
+import {Row, Col, Card, Table, Button, Form} from 'react-bootstrap';
+import {Link} from 'react-router-dom';
 import SplitBatchModal from '../splitBatchModal';
-import {Alert} from "bootstrap"; // Импортируем компонент модального окна
+import {Alert} from "bootstrap";
+import {toast} from "react-toastify";
 
-function WineBatches({ batches, onSplitBatch, error, onSplitError  }) { // Добавляем error в props
+function WineBatches({ batches, onSplitBatch, error, selectedBatches, onBatchSelect }) {
     const [showSplitModal, setShowSplitModal] = useState(false);
     const [batchToSplit, setBatchToSplit] = useState(null);
-    const [splitModalError, setSplitModalError] = useState(null);
 
     const handleSplit = async (data) => {
         try {
             await onSplitBatch(data);
             setShowSplitModal(false);
             setBatchToSplit(null);
-            setSplitModalError(null);
+            toast.success("Партия успешно разделена!");
         } catch (err) {
-            setSplitModalError(err.message);
+            toast.error(err.message || "Не удалось разделить партию");
         }
     };
 
@@ -51,12 +51,12 @@ function WineBatches({ batches, onSplitBatch, error, onSplitError  }) { // До�
                         </Row>
                     </Card.Header>
                     <Card.Body>
-                        {/* Выводим ошибку, если она есть */}
                         {error && <Alert variant="danger">{error}</Alert>}
 
                         <Table striped hover responsive>
                             <thead>
                             <tr>
+                                <th></th>
                                 <th>Название</th>
                                 <th className="d-none d-md-table-cell">Начальный объем (л)</th>
                                 <th>Текущий объем (л)</th>
@@ -67,6 +67,13 @@ function WineBatches({ batches, onSplitBatch, error, onSplitError  }) { // До�
                             <tbody>
                             {batches.map((batch) => (
                                 <tr key={batch.id}>
+                                    <td>
+                                        <Form.Check
+                                            type="checkbox"
+                                            checked={selectedBatches.has(batch.id)}
+                                            onChange={() => onBatchSelect(batch.id)}
+                                        />
+                                    </td>
                                     <td>{batch.name}</td>
                                     <td className="d-none d-md-table-cell">{batch.initial_volume}</td>
                                     <td>{batch.current_volume}</td>
@@ -95,10 +102,8 @@ function WineBatches({ batches, onSplitBatch, error, onSplitError  }) { // До�
                                 onClose={() => {
                                     setShowSplitModal(false);
                                     setBatchToSplit(null);
-                                    setSplitModalError(null);
                                 }}
                                 onSplit={handleSplit}
-                                error={splitModalError}
                             />
                         )}
                     </Card.Body>

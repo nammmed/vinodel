@@ -5,6 +5,7 @@ import {Table, Card, Button, ButtonGroup, Alert, Modal} from 'react-bootstrap';
 import {getGrapes, createGrape, updateGrape, deleteGrape, createBatchFromGrape} from '../services/api';
 import GrapeForm from '../components/GrapeForm';
 import VinifyForm from "../components/VinifyForm";
+import {toast} from "react-toastify";
 
 function GrapeList() {
     const [grapes, setGrapes] = useState([]);
@@ -48,14 +49,24 @@ function GrapeList() {
 
     // Обработчик для добавления нового винограда
     const handleAddGrape = async (grapeData) => {
-        await createGrape(grapeData);
-        loadGrapes();
+        try {
+            await createGrape(grapeData);
+            loadGrapes();
+            toast.success('Запись о винограде успешно добавлена!');
+        } catch (err) {
+            toast.error(err.response?.data?.error || 'Ошибка при добавлении');
+        }
     };
 
     // Обработчик для обновления существующего винограда
     const handleUpdateGrape = async (grapeData) => {
-        await updateGrape(currentGrape.id, grapeData);
-        loadGrapes();
+        try {
+            await updateGrape(currentGrape.id, grapeData);
+            loadGrapes();
+            toast.success('Запись успешно обновлена!');
+        } catch (err) {
+            toast.error(err.response?.data?.error || 'Ошибка при обновлении');
+        }
     };
 
     // Обработчики удаления
@@ -73,9 +84,10 @@ function GrapeList() {
         try {
             await deleteGrape(grapeToDelete.id);
             setGrapes(grapes.filter((g) => g.id !== grapeToDelete.id));
+            toast.success(`Виноград "${grapeToDelete.sort}" успешно удален.`);
             handleCloseDeleteModal();
         } catch (err) {
-            setError('Ошибка при удалении винограда');
+            toast.error(err.response?.data?.error || 'Ошибка при удалении');
         }
     };
 

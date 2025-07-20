@@ -422,4 +422,140 @@ class BatchController extends BaseController
         ]);
     }
 
+    public function createBlend()
+    {
+        // 1. Получаем данные из запроса
+        $data = json_decode(file_get_contents('php://input'), true);
+
+        // 2. Базовая валидация входных данных
+        if (!isset($data['name']) || empty($data['name']) || !isset($data['components']) || !is_array($data['components']) || empty($data['components'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Некорректные входные данные: необходимо указать название и компоненты.']);
+            exit;
+        }
+
+        if (isset($data['save_as_recipe']) && $data['save_as_recipe'] === true && (!isset($data['recipe_name']) || empty($data['recipe_name']))) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Для сохранения рецепта необходимо указать его название.']);
+            exit;
+        }
+
+        $batchModel = new Batch();
+        $totalVolume = 0;
+        $validatedComponents = [];
+
+        // 3. Предварительная проверка всех компонентов до начала транзакции
+        foreach ($data['components'] as $component) {
+            if (!isset($component['component_id']) || !isset($component['volume']) || !is_numeric($component['volume']) || $component['volume'] <= 0) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Некорректные данные для компонента.']);
+                exit;
+            }
+
+            $sourceBatch = $batchModel->findById($component['component_id']);
+
+            // Проверяем, что партия-источник существует, принадлежит пользователю и имеет достаточный объем
+            if (!$sourceBatch || $sourceBatch['user_id'] != $this->userId) {
+                http_response_code(404);
+                echo json_encode(['error' => 'Один из компонентов не найден или у вас нет к нему доступа.']);
+                exit;
+            }
+
+            if ($sourceBatch['current_volume'] < $component['volume']) {
+                http_response_code(400);
+                echo json_encode(['error' => "Недостаточный объем в партии '{$sourceBatch['name']}' (доступно: {$sourceBatch['current_volume']}л, требуется: {$component['volume']}л)"]);
+                exit;
+            }
+
+            $totalVolume += $component['volume'];
+            $validatedComponents[] = [
+                'id' => $component['component_id'],
+                'volume' => $component['volume'],
+                'source_batch_name' => $sourceBatch['name'] // Сохраняем для логики рецепта
+            ];
+        }
+
+        // 4. Начинаем транзакцию, так как будем изменять несколько таблиц
+        try {
+            $this->db->beginTransaction();
+
+            // 5. Создаем новую партию-купаж
+            $newBatchId = $batchModel->create([
+                'user_id' => $this->userId,
+                'name' => $data['name'],
+                'is_blend' => 1,
+                'initial_volume' => $totalVolume,
+                'current_volume' => $totalVolume,
+                'status' => 'Купажирование', // или другой начальный статус
+                'notes' => $data['notes'] ?? null,
+            ]);
+
+            $batchComponentModel = new BatchComponent();
+
+            // 6. Обновляем объемы исходных партий и создаем записи о компонентах
+            foreach ($validatedComponents as $component) {
+                $sourceBatch = $batchModel->findById($component['id']); // Получаем свежие данные
+                $newVolume = $sourceBatch['current_volume'] - $component['volume'];
+
+                // Обновляем исходную партию
+                $batchModel->update($component['id'], ['current_volume' => $newVolume]);
+
+                // Создаем связь "компонент -> купаж"
+                $batchComponentModel->create([
+                    'batch_id' => $newBatchId,
+                    'component_type' => 'batch',
+                    'component_id' => $component['id'],
+                    'operation_type' => 'blend', // Новый тип операции
+                    'percentage' => ($component['volume'] / $totalVolume) * 100,
+                    'volume' => $component['volume'],
+                    'notes' => "В составе купажа '{$data['name']}'",
+                ]);
+            }
+
+            $newRecipeId = null;
+            // 7. (Опционально) Сохраняем рецепт
+            if (isset($data['save_as_recipe']) && $data['save_as_recipe'] === true) {
+                $recipeModel = new \Models\Recipe();
+                $ingredientModel = new \Models\RecipeIngredient();
+
+                $newRecipeId = $recipeModel->create([
+                    'user_id' => $this->userId,
+                    'name' => $data['recipe_name'],
+                    'description' => $data['notes'] ?? "Рецепт создан из купажа '{$data['name']}'"
+                ]);
+
+                foreach ($validatedComponents as $component) {
+                    $ingredientModel->create([
+                        'recipe_id' => $newRecipeId,
+                        'component_type' => 'batch', // или 'grape_sort' в зависимости от логики
+                        'component_id' => $component['id'], // ID исходной партии
+                        'percentage' => ($component['volume'] / $totalVolume) * 100,
+                        'notes' => "Использована партия '{$component['source_batch_name']}'"
+                    ]);
+                }
+            }
+
+            // 8. Если все прошло успешно, подтверждаем транзакцию
+            $this->db->commit();
+
+            // 9. Отправляем успешный ответ
+            http_response_code(201);
+            $response = [
+                'message' => "Купаж '{$data['name']}' успешно создан.",
+                'batch_id' => $newBatchId
+            ];
+            if ($newRecipeId) {
+                $response['recipe_id'] = $newRecipeId;
+            }
+            echo json_encode($response);
+
+        } catch (\Exception $e) {
+            // 10. В случае любой ошибки - откатываем все изменения
+            $this->db->rollBack();
+            error_log("Ошибка при создании купажа: " . $e->getMessage());
+            http_response_code(500);
+            echo json_encode(['error' => 'Произошла внутренняя ошибка сервера при создании купажа.']);
+        }
+    }
+
 }

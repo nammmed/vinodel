@@ -25,6 +25,7 @@ $routes = [
         '/grapes' => [GrapeController::class, 'store'],
 
         '/batches' => [BatchController::class, 'store'],
+        '/batches/blend' => [BatchController::class, 'createBlend'],
         '/batches/(\d+)/components' => [BatchComponentController::class, 'store'],
         '/batches/(\d+)/processes' => [ProcessLogController::class, 'store'],
         '/batches/(\d+)/split' => [BatchController::class, 'split'],
