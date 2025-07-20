@@ -1,0 +1,26 @@
+Header set Access-Control-Allow-Origin "http://localhost:3000"
+Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+Header set Access-Control-Allow-Credentials "true"
+
+RewriteEngine On
+RewriteBase /
+
+# Если запрос не к реальному файлу
+RewriteCond %{REQUEST_FILENAME} !-f
+# И не к реальной директории
+RewriteCond %{REQUEST_FILENAME} !-d
+# И не к API (папке server)
+RewriteCond %{REQUEST_URI} !^/server/
+# То перенаправляем на index.html
+RewriteRule ^ index.html [L]
+
+# Защита от просмотра директорий
+Options -Indexes
+
+# Дополнительные заголовки безопасности
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set X-Frame-Options "SAMEORIGIN"
+</IfModule>

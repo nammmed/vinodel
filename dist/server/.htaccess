@@ -1,0 +1,32 @@
+RewriteEngine On
+
+# Если запрашивается реальный файл или директория, обрабатываем напрямую
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Разрешаем CORS
+Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+
+# Обрабатываем OPTIONS запросы
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteRule ^(.*)$ $1 [R=200,L]
+
+# Перенаправляем все остальные запросы на index.php
+RewriteRule ^(.*)$ index.php [QSA,L]
+
+# Защита от просмотра содержимого директорий
+Options -Indexes
+
+# Защита .htaccess
+<Files .htaccess>
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Защита файлов конфигурации
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
