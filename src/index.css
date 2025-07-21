@@ -6,3 +6,23 @@
 .table-fixed tbody td:nth-child(5) {
   max-width: 270px;
 }
+
+.table .form-check-input {
+  opacity: 1;
+  border: 1px solid #adb5bd;
+}
+
+.form-switch .form-check-input {
+  border-radius: 2em;
+}
+
+.bg-light .form-switch .form-check-input {
+  background-color: #adb5bd;
+  border-color: rgba(0, 0, 0, 0.25);
+  border-radius: 2em;
+}
+
+.bg-light .form-switch .form-check-input:checked {
+  background-color: var(--bs-primary);
+  border-color: var(--bs-primary);
+}

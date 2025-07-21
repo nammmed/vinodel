@@ -1,6 +1,6 @@
 // src/pages/Dashboard.js
-import React, {useState} from 'react';
-import {Modal, Button} from 'react-bootstrap';
+import React, {useState, useEffect} from 'react';
+import {Modal} from 'react-bootstrap';
 import useBatches from '../hooks/useBatches';
 import useGrapes from '../hooks/useGrapes';
 import GrapeForm from '../components/GrapeForm';
@@ -25,6 +25,23 @@ function Dashboard() {
 
     const [selectedBatches, setSelectedBatches] = useState(new Set());
     const [showBlendLab, setShowBlendLab] = useState(false);
+
+    useEffect(() => {
+        const availableBatchIds = new Set(batches.map(b => b.id));
+
+        if (selectedBatches.size > 0) {
+            const newSelection = new Set();
+            for (const id of selectedBatches) {
+                if (availableBatchIds.has(id)) {
+                    newSelection.add(id);
+                }
+            }
+
+            if (newSelection.size !== selectedBatches.size) {
+                setSelectedBatches(newSelection);
+            }
+        }
+    }, [batches]);
 
     const handleVinify = (grape) => {
         setGrapeToVinify(grape);
@@ -57,7 +74,6 @@ function Dashboard() {
     };
 
     const handleBlendSuccess = (data) => {
-        console.log('Купаж успешно создан:', data);
         fetchBatches();
         setSelectedBatches(new Set());
         toast.success(`Купаж "${data.message.split("'")[1]}" успешно создан!`);
@@ -69,17 +85,7 @@ function Dashboard() {
 
     return (
         <div className="dashboard">
-            <div className="d-flex justify-content-between align-items-center mb-4">
-                <h2>Винодельня</h2>
-                <Button
-                    variant="primary"
-                    size="lg"
-                    disabled={selectedBatches.size === 0}
-                    onClick={handleOpenBlendLab}
-                >
-                    Создать купаж ({selectedBatches.size})
-                </Button>
-            </div>
+            <h2>Винодельня</h2>
 
             {/* Партии вина */}
             <WineBatches
@@ -88,6 +94,7 @@ function Dashboard() {
                 error={batchesError}
                 selectedBatches={selectedBatches}
                 onBatchSelect={handleBatchSelect}
+                onOpenBlendLab={() => setShowBlendLab(true)}
             />
 
             {/* Виноград в наличии */}

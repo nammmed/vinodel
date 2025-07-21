@@ -1,11 +1,11 @@
 // src/components/Dashboard/WineBatches.js
 import React, {useState} from 'react';
-import {Row, Col, Card, Table, Button, Form, Alert} from 'react-bootstrap';
+import {Row, Col, Card, Table, Button, Form, Alert, OverlayTrigger, Tooltip} from 'react-bootstrap';
 import {Link} from 'react-router-dom';
 import SplitBatchModal from '../splitBatchModal';
 import {toast} from "react-toastify";
 
-function WineBatches({ batches, onSplitBatch, error, selectedBatches, onBatchSelect }) {
+function WineBatches({ batches, onSplitBatch, error, selectedBatches, onBatchSelect, onOpenBlendLab }) {
     const [showSplitModal, setShowSplitModal] = useState(false);
     const [batchToSplit, setBatchToSplit] = useState(null);
 
@@ -36,15 +36,23 @@ function WineBatches({ batches, onSplitBatch, error, selectedBatches, onBatchSel
                                     variant="primary"
                                     className="me-2 d-none d-md-inline-block"
                                 >
-                                    Управление партиями
+                                    Управление
                                 </Button>
                                 <Button
                                     as={Link}
                                     to="/batches/new"
                                     variant="success"
-                                    className="d-none d-md-inline-block"
+                                    className="d-none d-md-inline-block me-2"
                                 >
-                                    Добавить партию
+                                    Добавить
+                                </Button>
+                                <Button
+                                    variant="primary"
+                                    className="me-2"
+                                    disabled={selectedBatches.size < 2}
+                                    onClick={onOpenBlendLab}
+                                >
+                                    Купаж ({selectedBatches.size})
                                 </Button>
                             </Col>
                         </Row>

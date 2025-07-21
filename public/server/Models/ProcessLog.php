@@ -36,8 +36,8 @@ class ProcessLog extends BaseModel
             'batch_id' => $data['batch_id'],
             'process_id' => $data['process_id'],
             'start_date' => $data['start_date'],
-            'end_date' => $data['end_date'],
-            'notes' => $data['notes'],
+            'end_date' => $data['end_date'] ?? null,
+            'notes' => $data['notes'] ?? null,
         ]);
         return $this->db->lastInsertId();
     }

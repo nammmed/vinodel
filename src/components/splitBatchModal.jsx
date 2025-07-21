@@ -233,7 +233,7 @@ function SplitBatchModal({batch, onClose, onSplit}) {
 
                     {/* Список партий */}
                     {newBatches.map((newBatch, index) => (
-                        <div key={index} className="border rounded p-3 mb-3">
+                        <div key={index} className="mb-3">
                             <Row className="mb-3">
                                 <Col xs={12} md={6}>
                                     <Form.Group controlId={`name-${index}`}>
