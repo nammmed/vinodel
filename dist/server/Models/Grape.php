@@ -23,7 +23,12 @@ class Grape extends BaseModel
     // Найти закупку по ID
     public function findById($id)
     {
-        $stmt = $this->db->prepare('SELECT * FROM grapes WHERE id = :id');
+        $stmt = $this->db->prepare('
+            SELECT g.*, gs.name as sort_name 
+            FROM grapes g
+            JOIN grape_sorts gs ON g.grape_sort_id = gs.id
+            WHERE g.id = :id
+        ');
         $stmt->execute(['id' => $id]);
         return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
@@ -31,7 +36,13 @@ class Grape extends BaseModel
     // Получить все закупки пользователя
     public function getAllByUser($userId)
     {
-        $stmt = $this->db->prepare('SELECT * FROM grapes WHERE user_id = :user_id ORDER BY date_purchased ASC');
+        $stmt = $this->db->prepare('
+            SELECT g.*, gs.name as sort_name 
+            FROM grapes g
+            JOIN grape_sorts gs ON g.grape_sort_id = gs.id
+            WHERE g.user_id = :user_id 
+            ORDER BY g.date_purchased ASC
+        ');
         $stmt->execute(['user_id' => $userId]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
@@ -41,12 +52,12 @@ class Grape extends BaseModel
     {
         try {
             $stmt = $this->db->prepare('
-            INSERT INTO grapes (user_id, sort, date_purchased, quantity, cost, supplier, notes, created_at)
-            VALUES (:user_id, :sort, :date_purchased, :quantity, :cost, :supplier, :notes, NOW())
-        ');
+                INSERT INTO grapes (user_id, grape_sort_id, date_purchased, quantity, cost, supplier, notes, created_at)
+                VALUES (:user_id, :grape_sort_id, :date_purchased, :quantity, :cost, :supplier, :notes, NOW())
+            ');
             $stmt->execute([
                 'user_id' => $data['user_id'],
-                'sort' => $data['sort'],
+                'grape_sort_id' => $data['grape_sort_id'],
                 'date_purchased' => $data['date_purchased'],
                 'quantity' => $data['quantity'],
                 'cost' => $data['cost'],
@@ -61,16 +72,15 @@ class Grape extends BaseModel
         }
     }
 
-    // Добавляем метод update
     public function update($id, $data)
     {
         try {
             $fields = [];
             $params = ['id' => $id];
 
-            if (isset($data['sort'])) {
-                $fields[] = 'sort = :sort';
-                $params['sort'] = $data['sort'];
+            if (isset($data['grape_sort_id'])) {
+                $fields[] = 'grape_sort_id = :grape_sort_id';
+                $params['grape_sort_id'] = $data['grape_sort_id'];
             }
             if (isset($data['date_purchased'])) {
                 $fields[] = 'date_purchased = :date_purchased';

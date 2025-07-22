@@ -22,7 +22,7 @@ class GrapeController extends BaseController
         $data = json_decode(file_get_contents('php://input'), true);
 
         // Проверка корректности данных
-        if (!isset($data['sort'], $data['date_purchased'], $data['quantity'])) {
+        if (!isset($data['grape_sort_id'], $data['date_purchased'], $data['quantity'])) {
             http_response_code(400);
             echo json_encode(['error' => 'Необходимо указать сорт, дату закупки и количество']);
             exit;
@@ -63,7 +63,7 @@ class GrapeController extends BaseController
         try {
             $grapeId = $grapeModel->create([
                 'user_id' => $this->userId,
-                'sort' => $sort,
+                'grape_sort_id' => (int)$data['grape_sort_id'],
                 'date_purchased' => $datePurchased,
                 'quantity' => $quantity,
                 'cost' => isset($data['cost']) ? (float)$data['cost'] : null,
@@ -107,8 +107,8 @@ class GrapeController extends BaseController
         $data = json_decode(file_get_contents('php://input'), true);
 
         $updateData = [];
-        if (isset($data['sort'])) {
-            $updateData['sort'] = trim($data['sort']);
+        if (isset($data['grape_sort_id'])) {
+            $updateData['grape_sort_id'] = (int)$data['grape_sort_id'];
         }
         if (isset($data['date_purchased'])) {
             $updateData['date_purchased'] = $data['date_purchased'];

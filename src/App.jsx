@@ -12,6 +12,7 @@ import {useContext} from 'react';
 import {AuthContext} from './context/AuthContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import RecipeList from "./pages/RecipeList";
 
 // Защищенный маршрут - редиректит на логин, если пользователь не авторизован
 const ProtectedRoute = ({children}) => {
@@ -79,6 +80,14 @@ function App() {
                                 <div>Измерения (компонент пока не создан)</div>
                             </ProtectedRoute>
                         }/>
+
+                        {/* Рецепты */}
+                        <Route path="/recipes" element={
+                            <ProtectedRoute>
+                                <RecipeList />
+                            </ProtectedRoute>
+                        }/>
+
                     </Routes>
                 </div>
                 <ToastContainer

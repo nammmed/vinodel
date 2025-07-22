@@ -99,4 +99,34 @@ class Batch extends BaseModel
         $stmt = $this->db->prepare('DELETE FROM batches WHERE id = :id');
         $stmt->execute(['id' => $id]);
     }
+
+    /**
+     * Находит все моносортовые (не купажи) партии указанного сорта у пользователя.
+     * @param string $grapeSort Название сорта винограда.
+     * @param int $userId ID пользователя.
+     * @return array Массив партий.
+     */
+    public function findMonoSortBatches($grapeSortId, $userId)
+    {
+        $stmt = $this->db->prepare("
+            SELECT b.id, b.name, b.current_volume
+            FROM batches b
+            -- Присоединяем компоненты, чтобы найти связь с закупкой винограда
+            JOIN batch_components bc ON b.id = bc.batch_id
+            -- Присоединяем саму закупку винограда, чтобы узнать его сорт
+            JOIN grapes g ON bc.component_id = g.id AND bc.component_type = 'grape'
+            WHERE b.user_id = :user_id
+              -- Убеждаемся, что это моносортовая партия (не купаж)
+              AND b.is_blend = 0
+              -- У которой еще есть объем
+              AND b.current_volume > 0
+              -- И фильтруем по ID нужного нам сорта
+              AND g.grape_sort_id = :grape_sort_id
+        ");
+        $stmt->execute([
+            'user_id' => $userId,
+            'grape_sort_id' => $grapeSortId
+        ]);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
 }

@@ -20,4 +20,17 @@ class RecipeIngredient extends BaseModel
         ]);
         return $this->db->lastInsertId();
     }
+
+    public function getByRecipeId($recipeId)
+    {
+        $stmt = $this->db->prepare('
+            SELECT ri.*, gs.name as grape_sort_name
+            FROM recipe_ingredients ri
+            JOIN grape_sorts gs ON ri.grape_sort_id = gs.id
+            WHERE ri.recipe_id = :recipe_id
+        ');
+        $stmt->execute(['recipe_id' => $recipeId]);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
 }

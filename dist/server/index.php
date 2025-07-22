@@ -11,17 +11,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
 }
-// Убедитесь, что сессии работают с CORS
-ini_set('session.cookie_samesite', 'None');
-ini_set('session.cookie_secure', 'true');
-session_set_cookie_params([
-    'lifetime' => 0,
-    'path' => '/',
-    'domain' => 'vinodel.prostoweb.su', // Замените на ваш домен
-    'secure' => true,
-    'httponly' => true,
-    'samesite' => 'None'
-]);
 
 // Подключаем конфигурацию
 require_once __DIR__ . '/config/config.php';

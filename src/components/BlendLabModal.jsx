@@ -3,7 +3,7 @@ import { Modal, Button, Form, Row, Col, InputGroup, Spinner } from 'react-bootst
 import { blendBatches } from '../services/api';
 import { toast } from 'react-toastify';
 
-function BlendLabModal({ show, onClose, batches, onSuccess }) {
+function BlendLabModal({ show, onClose, initialData, onSuccess }) {
     // --- 1. Основное состояние ---
     const [components, setComponents] = useState([]);
     const [blendName, setBlendName] = useState('');
@@ -14,20 +14,11 @@ function BlendLabModal({ show, onClose, batches, onSuccess }) {
 
     // --- 2. Инициализация и сброс состояния при открытии/закрытии ---
     useEffect(() => {
-        if (show && batches?.length > 0) {
-            // Заполняем компоненты на основе выбранных партий
-            setComponents(
-                batches.map((b) => ({
-                    id: b.id,
-                    name: b.name,
-                    availableVolume: parseFloat(b.current_volume),
-                    usedVolume: 0, // Начинаем с нуля
-                }))
-            );
-            // Генерируем начальное имя для удобства
-            const initialName = `Купаж из ${batches.map(b => b.name).join(', ')}`;
-            setBlendName(initialName.substring(0, 100));
-            setRecipeName(initialName.substring(0, 100));
+        if (show && initialData) {
+            // Заполняем на основе initialData
+            setComponents(initialData.components || []);
+            setBlendName(initialData.name || '');
+            setRecipeName(initialData.name || '');
         } else if (!show) {
             // Сбрасываем все при закрытии
             setComponents([]);
@@ -37,7 +28,7 @@ function BlendLabModal({ show, onClose, batches, onSuccess }) {
             setRecipeName('');
             setIsLoading(false);
         }
-    }, [show, batches]);
+    }, [show, initialData]);
 
     // --- 3. Вычисляемые значения (всегда актуальны) ---
     const totalBlendVolume = components.reduce((sum, c) => sum + (c.usedVolume || 0), 0);

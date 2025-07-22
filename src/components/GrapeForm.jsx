@@ -1,9 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Button, Alert } from 'react-bootstrap';
+import React, { useState, useEffect, useRef } from 'react';
+import { Form, Button, Alert, CloseButton } from 'react-bootstrap';
+import useGrapeSorts from '../hooks/useGrapeSorts';
+import { Typeahead } from 'react-bootstrap-typeahead';
+import 'react-bootstrap-typeahead/css/Typeahead.css';
 
 function GrapeForm({ initialData, onSubmit, onClose }) {
+    const sorts = useGrapeSorts();
     const [grape, setGrape] = useState({
-        sort: '',
+        grape_sort_id: '',
         quantity: '',
         date_purchased: new Date().toISOString().split('T')[0],
         cost: '',
@@ -13,9 +17,20 @@ function GrapeForm({ initialData, onSubmit, onClose }) {
 
     const [error, setError] = useState('');
 
+    const typeaheadRef = useRef(null);
+    const sortOptions = sorts.map(s => ({ value: s.id, label: s.name }));
+    const selectedSort = sortOptions.find(opt => opt.value === grape.grape_sort_id);
+
     useEffect(() => {
         if (initialData) {
-            setGrape(initialData);
+            const preparedData = {
+                ...initialData,
+                quantity: initialData.quantity?.toString() || '',
+                cost: initialData.cost?.toString() || '',
+                supplier: initialData.supplier || '',
+                notes: initialData.notes || '',
+            };
+            setGrape(preparedData);
         }
     }, [initialData]);
 
@@ -39,11 +54,23 @@ function GrapeForm({ initialData, onSubmit, onClose }) {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setGrape((prev) => ({
+        setGrape(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSortChange = (selected) => {
+        const selectedId = selected.length > 0 ? selected[0].id : '';
+        setGrape(prev => ({
             ...prev,
-            [name]: value,
+            grape_sort_id: selectedId
         }));
     };
+    const handleSortBlur = () => {
+        if (!grape.grape_sort_id) {
+            typeaheadRef.current?.clear();
+        }
+    };
+
+    const selectedSortArray = sorts.filter(s => s.id === grape.grape_sort_id);
 
     return (
         <>
@@ -52,13 +79,18 @@ function GrapeForm({ initialData, onSubmit, onClose }) {
             <Form onSubmit={handleSubmit}>
                 <Form.Group className="mb-3">
                     <Form.Label>Сорт</Form.Label>
-                    <Form.Control
-                        type="text"
-                        name="sort"
-                        value={grape.sort}
-                        onChange={handleChange}
-                        required
-                        placeholder="Введите сорт винограда"
+                    <Typeahead
+                        id="grape-sort-typeahead"
+                        labelKey="name"
+                        options={sorts}
+                        onChange={handleSortChange}
+                        selected={selectedSortArray}
+                        placeholder="Выберите или начните вводить сорт..."
+                        emptyLabel="Сорт не найден."
+                        allowNew={false}
+                        ref={typeaheadRef}
+                        onBlur={handleSortBlur}
+                        clearButton={<CloseButton aria-label="Очистить" />}
                     />
                 </Form.Group>
 

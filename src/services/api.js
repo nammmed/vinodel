@@ -34,3 +34,8 @@ export const splitBatch = (batchId, data) => api.post(`/batches/${batchId}/split
 
 // Купажирование
 export const blendBatches = (data) => api.post('/batches/blend', data);
+
+// Рецепты
+export const getRecipes = () => api.get('/recipes');
+export const getRecipeById = (id) => api.get(`/recipes/${id}`);
+export const getAssemblyPlan = (recipeId, targetVolume) => api.post(`/recipes/${recipeId}/get-plan`, { targetVolume });

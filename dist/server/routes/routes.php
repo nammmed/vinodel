@@ -7,6 +7,8 @@ use Controllers\BatchComponentController;
 use Controllers\ProcessController;
 use Controllers\ProcessLogController;
 use Controllers\MeasurementController;
+use Controllers\RecipeController;
+use Controllers\GrapeSortController;
 
 $requestUri = $_SERVER['REQUEST_URI'];
 $requestMethod = $_SERVER['REQUEST_METHOD'];
@@ -35,11 +37,14 @@ $routes = [
         '/process-logs/(\d+)/measurements' => [MeasurementController::class, 'store'],
 
         '/grapes/(\d+)/vinify' => [BatchController::class, 'vinifyGrape'],
+
+        '/recipes/(\d+)/get-plan' => [RecipeController::class, 'getAssemblyPlan'],
     ],
     'GET' => [
         '/check-auth' => [UserController::class, 'checkAuthStatus'],
         '/grapes' => [GrapeController::class, 'index'],
         '/grapes/(\d+)' => [GrapeController::class, 'show'],
+        '/grape-sorts' => [GrapeSortController::class, 'index'],
 
         '/batches' => [BatchController::class, 'index'],
         '/batches/(\d+)' => [BatchController::class, 'show'],
@@ -49,6 +54,9 @@ $routes = [
         '/processes' => [ProcessController::class, 'index'],
 
         '/process-logs/(\d+)/measurements' => [MeasurementController::class, 'index'],
+
+        '/recipes' => [RecipeController::class, 'index'],
+        '/recipes/(\d+)' => [RecipeController::class, 'show'],
     ],
     'PUT' => [
         '/grapes/(\d+)' => [GrapeController::class, 'update'],

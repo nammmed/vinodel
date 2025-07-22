@@ -41,8 +41,8 @@ function NavigationBar() {
                                         Создать партию
                                     </NavDropdown.Item>
                                     <NavDropdown.Divider/>
-                                    <NavDropdown.Item as={Link} to="/blends">
-                                        Купажи
+                                    <NavDropdown.Item as={Link} to="/recipes">
+                                        Мои рецепты
                                     </NavDropdown.Item>
                                     <NavDropdown.Item as={Link} to="/blends/new">
                                         Создать купаж

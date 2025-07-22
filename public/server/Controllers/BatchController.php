@@ -513,24 +513,36 @@ class BatchController extends BaseController
             }
 
             $newRecipeId = null;
-            // 7. (Опционально) Сохраняем рецепт
+            // 7. (Опционально) Сохраняем рецепт - НОВАЯ, УМНАЯ ЛОГИКА
             if (isset($data['save_as_recipe']) && $data['save_as_recipe'] === true) {
+                // Сначала создаем запись в основной таблице рецептов
                 $recipeModel = new \Models\Recipe();
-                $ingredientModel = new \Models\RecipeIngredient();
-
                 $newRecipeId = $recipeModel->create([
                     'user_id' => $this->userId,
                     'name' => $data['recipe_name'],
                     'description' => $data['notes'] ?? "Рецепт создан из купажа '{$data['name']}'"
                 ]);
 
+                // Теперь самое интересное: вычисляем итоговый "геном" нашего нового купажа
+                $finalComposition = [];
                 foreach ($validatedComponents as $component) {
+                    $componentComposition = $this->getBatchComposition($component['id']);
+                    $componentShareInBlend = $component['volume'] / $totalVolume;
+
+                    foreach ($componentComposition as $sortId => $percentage) {
+                        if (!isset($finalComposition[$sortId])) {
+                            $finalComposition[$sortId] = 0;
+                        }
+                        $finalComposition[$sortId] += ($percentage / 100) * $componentShareInBlend;
+                    }
+                }
+
+                $ingredientModel = new \Models\RecipeIngredient();
+                foreach ($finalComposition as $sortId => $share) {
                     $ingredientModel->create([
                         'recipe_id' => $newRecipeId,
-                        'component_type' => 'batch', // или 'grape_sort' в зависимости от логики
-                        'component_id' => $component['id'], // ID исходной партии
-                        'percentage' => ($component['volume'] / $totalVolume) * 100,
-                        'notes' => "Использована партия '{$component['source_batch_name']}'"
+                        'grape_sort_id' => $sortId, // <<< ИЗМЕНЕНИЕ
+                        'percentage' => $share * 100
                     ]);
                 }
             }
@@ -556,6 +568,41 @@ class BatchController extends BaseController
             http_response_code(500);
             echo json_encode(['error' => 'Произошла внутренняя ошибка сервера при создании купажа.']);
         }
+    }
+
+    /**
+     * Рекурсивно вычисляет состав партии из базовых сортов винограда.
+     * @param int $batchId ID партии для анализа.
+     * @return array Ассоциативный массив [ 'название_сорта' => процент, ... ]
+     */
+    private function getBatchComposition($batchId) {
+        $batchComponentModel = new \Models\BatchComponent();
+        $components = $batchComponentModel->getComponentsByBatch($batchId);
+
+        $finalComposition = [];
+
+        foreach ($components as $component) {
+            $componentPercentage = $component['percentage'] / 100;
+            $compositionOfComponent = [];
+
+            if ($component['component_type'] === 'grape') {
+                $grapeModel = new \Models\Grape();
+                $grape = $grapeModel->findById($component['component_id']);
+                if ($grape) {
+                    $compositionOfComponent[$grape['grape_sort_id']] = 100.0;
+                }
+            } elseif ($component['component_type'] === 'batch') {
+                $compositionOfComponent = $this->getBatchComposition($component['component_id']);
+            }
+
+            foreach ($compositionOfComponent as $sortId => $percentage) { // <<< ИЗМЕНЕНИЕ: $sort -> $sortId
+                if (!isset($finalComposition[$sortId])) {
+                    $finalComposition[$sortId] = 0;
+                }
+                $finalComposition[$sortId] += $percentage * $componentPercentage;
+            }
+        }
+        return $finalComposition;
     }
 
 }

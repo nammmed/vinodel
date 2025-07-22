@@ -84,7 +84,7 @@ function GrapeList() {
         try {
             await deleteGrape(grapeToDelete.id);
             setGrapes(grapes.filter((g) => g.id !== grapeToDelete.id));
-            toast.success(`Виноград "${grapeToDelete.sort}" успешно удален.`);
+            toast.success(`Виноград "${grapeToDelete.sort_name}" успешно удален.`);
             handleCloseDeleteModal();
         } catch (err) {
             toast.error(err.response?.data?.error || 'Ошибка при удалении');
@@ -150,7 +150,7 @@ function GrapeList() {
                         ) : (
                             grapes.map((grape) => (
                                 <tr key={grape.id}>
-                                    <td>{grape.sort}</td>
+                                    <td>{grape.sort_name}</td>
                                     <td>{grape.quantity}</td>
                                     <td>{new Date(grape.date_purchased).toLocaleDateString()}</td>
                                     <td>{grape.cost ? `${grape.cost} ₽` : '-'}</td>
@@ -209,7 +209,7 @@ function GrapeList() {
             {/* Модальное окно для винификации винограда */}
             <Modal show={showVinifyModal} onHide={handleCloseVinifyModal}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Винификация винограда {currentGrape?.sort}</Modal.Title>
+                    <Modal.Title>Винификация винограда {currentGrape?.sort_name}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {currentGrape && (
@@ -231,7 +231,7 @@ function GrapeList() {
                     {grapeToDelete && (
                         <p>
                             Вы действительно хотите удалить запись о винограде сорта "
-                            {grapeToDelete.sort}"?
+                            {grapeToDelete.sort_name}"?
                         </p>
                     )}
                 </Modal.Body>
