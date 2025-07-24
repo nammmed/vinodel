@@ -39,3 +39,12 @@ export const blendBatches = (data) => api.post('/batches/blend', data);
 export const getRecipes = () => api.get('/recipes');
 export const getRecipeById = (id) => api.get(`/recipes/${id}`);
 export const getAssemblyPlan = (recipeId, targetVolume) => api.post(`/recipes/${recipeId}/get-plan`, { targetVolume });
+
+// Расходники (Склад)
+export const getSupplies = () => api.get('/supplies');
+export const createSupply = (data) => api.post('/supplies', data);
+export const addStockToSupply = (supplyId, data) => api.post(`/supplies/${supplyId}/add-stock`, data);
+
+// Розлив
+export const getBottlingPlan = (batchId, volume, bottleId) => api.get(`/batches/${batchId}/bottling-plan`, { params: { volume, bottle_id: bottleId } });
+export const executeBottling = (batchId, data) => api.post(`/batches/${batchId}/execute-bottling`, data);

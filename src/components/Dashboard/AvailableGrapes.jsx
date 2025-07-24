@@ -46,7 +46,7 @@ function AvailableGrapes({ grapes, onVinify, onShowAddGrapeModal }) {
                             <tbody>
                             {grapes.map((grape) => (
                                 <tr key={grape.id}>
-                                    <td>{grape.sort}</td>
+                                    <td>{grape.sort_name}</td>
                                     <td>{grape.quantity}</td>
                                     <td className="d-none d-md-table-cell">
                                         {new Date(grape.date_purchased).toLocaleDateString()}

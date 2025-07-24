@@ -31,6 +31,7 @@ $routes = [
         '/batches/(\d+)/components' => [BatchComponentController::class, 'store'],
         '/batches/(\d+)/processes' => [ProcessLogController::class, 'store'],
         '/batches/(\d+)/split' => [BatchController::class, 'split'],
+        '/batches/{id}/execute-bottling' => [BatchController::class, 'executeBottling'],
 
         '/processes' => [ProcessController::class, 'store'],
 
@@ -39,6 +40,9 @@ $routes = [
         '/grapes/(\d+)/vinify' => [BatchController::class, 'vinifyGrape'],
 
         '/recipes/(\d+)/get-plan' => [RecipeController::class, 'getAssemblyPlan'],
+
+        '/supplies' => [SupplyController::class, 'store'],
+        '/supplies/{id}/add-stock' => [SupplyController::class, 'addStock'],
     ],
     'GET' => [
         '/check-auth' => [UserController::class, 'checkAuthStatus'],
@@ -50,6 +54,7 @@ $routes = [
         '/batches/(\d+)' => [BatchController::class, 'show'],
         '/batches/(\d+)/components' => [BatchComponentController::class, 'index'],
         '/batches/(\d+)/processes' => [ProcessLogController::class, 'index'],
+        '/batches/{id}/bottling-plan' => [BatchController::class, 'getBottlingPlan'],
 
         '/processes' => [ProcessController::class, 'index'],
 
@@ -57,6 +62,8 @@ $routes = [
 
         '/recipes' => [RecipeController::class, 'index'],
         '/recipes/(\d+)' => [RecipeController::class, 'show'],
+
+        '/supplies' => [SupplyController::class, 'index'],
     ],
     'PUT' => [
         '/grapes/(\d+)' => [GrapeController::class, 'update'],

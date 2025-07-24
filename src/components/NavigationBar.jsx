@@ -49,14 +49,7 @@ function NavigationBar() {
                                     </NavDropdown.Item>
                                 </NavDropdown>
 
-                                <NavDropdown title="Процессы" id="process-nav-dropdown">
-                                    <NavDropdown.Item as={Link} to="/processes">
-                                        Все процессы
-                                    </NavDropdown.Item>
-                                    <NavDropdown.Item as={Link} to="/measurements">
-                                        Измерения
-                                    </NavDropdown.Item>
-                                </NavDropdown>
+                                <Nav.Link as={Link} to="/supplies">Склад</Nav.Link>
                             </Nav>
 
                             <Nav>

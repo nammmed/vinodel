@@ -4,6 +4,7 @@
 namespace Controllers;
 
 use Models\Grape;
+use Models\GrapeSort;
 
 class GrapeController extends BaseController
 {
@@ -27,18 +28,17 @@ class GrapeController extends BaseController
             echo json_encode(['error' => 'Необходимо указать сорт, дату закупки и количество']);
             exit;
         }
+        $grapeSortModel = new GrapeSort();
+        if (!$grapeSortModel->exists((int)$data['grape_sort_id'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Выбранный сорт не существует в справочнике.']);
+            exit;
+        }
 
-        $sort = trim($data['sort']);
         $datePurchased = $data['date_purchased'];
         $quantity = (float)$data['quantity'];
 
         // Дополнительная валидация
-        if ($sort === '') {
-            http_response_code(400);
-            echo json_encode(['error' => 'Сорт не может быть пустым']);
-            exit;
-        }
-
         if (!strtotime($datePurchased)) {
             http_response_code(400);
             echo json_encode(['error' => 'Некорректная дата закупки']);
@@ -129,6 +129,12 @@ class GrapeController extends BaseController
         if (isset($updateData['sort']) && $updateData['sort'] === '') {
             http_response_code(400);
             echo json_encode(['error' => 'Сорт не может быть пустым']);
+            exit;
+        }
+        $grapeSortModel = new GrapeSort();
+        if (!$grapeSortModel->exists((int)$data['grape_sort_id'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Выбранный сорт не существует в справочнике.']);
             exit;
         }
 

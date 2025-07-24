@@ -26,7 +26,7 @@ class Grape extends BaseModel
         $stmt = $this->db->prepare('
             SELECT g.*, gs.name as sort_name 
             FROM grapes g
-            JOIN grape_sorts gs ON g.grape_sort_id = gs.id
+            LEFT JOIN grape_sorts gs ON g.grape_sort_id = gs.id
             WHERE g.id = :id
         ');
         $stmt->execute(['id' => $id]);
@@ -39,7 +39,7 @@ class Grape extends BaseModel
         $stmt = $this->db->prepare('
             SELECT g.*, gs.name as sort_name 
             FROM grapes g
-            JOIN grape_sorts gs ON g.grape_sort_id = gs.id
+            LEFT JOIN grape_sorts gs ON g.grape_sort_id = gs.id
             WHERE g.user_id = :user_id 
             ORDER BY g.date_purchased ASC
         ');
@@ -52,9 +52,9 @@ class Grape extends BaseModel
     {
         try {
             $stmt = $this->db->prepare('
-                INSERT INTO grapes (user_id, grape_sort_id, date_purchased, quantity, cost, supplier, notes, created_at)
-                VALUES (:user_id, :grape_sort_id, :date_purchased, :quantity, :cost, :supplier, :notes, NOW())
-            ');
+            INSERT INTO grapes (user_id, grape_sort_id, date_purchased, quantity, cost, supplier, notes, created_at)
+            VALUES (:user_id, :grape_sort_id, :date_purchased, :quantity, :cost, :supplier, :notes, NOW())
+        ');
             $stmt->execute([
                 'user_id' => $data['user_id'],
                 'grape_sort_id' => $data['grape_sort_id'],
@@ -66,7 +66,6 @@ class Grape extends BaseModel
             ]);
             return $this->db->lastInsertId();
         } catch (\PDOException $e) {
-            // Логируем ошибку и выбрасываем исключение
             error_log('Ошибка при добавлении винограда: ' . $e->getMessage());
             throw new \Exception('Не удалось добавить запись о винограде');
         }
