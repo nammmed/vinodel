@@ -16,4 +16,12 @@ class GrapeSort extends BaseModel
         $stmt->execute(['id' => $id]);
         return $stmt->fetchColumn() !== false;
     }
+
+    public function findById($id)
+    {
+        $stmt = $this->db->prepare('SELECT * FROM grape_sorts WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch(\PDO::FETCH_ASSOC);
+    }
+
 }

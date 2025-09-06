@@ -81,7 +81,9 @@ function WineBatches({ batches, onSplitBatch, error, selectedBatches, onBatchSel
                                             onChange={() => onBatchSelect(batch.id)}
                                         />
                                     </td>
-                                    <td>{batch.name}</td>
+                                    <td>
+                                        <Link to={`/batches/${batch.id}`}>{batch.name}</Link>
+                                    </td>
                                     <td className="d-none d-md-table-cell">{batch.initial_volume}</td>
                                     <td>{batch.current_volume}</td>
                                     <td>{batch.status}</td>

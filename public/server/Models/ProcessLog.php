@@ -57,4 +57,17 @@ class ProcessLog extends BaseModel
         return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
 
+    public function getLogsByBatchWithProcessName($batchId)
+    {
+        $stmt = $this->db->prepare('
+            SELECT pl.*, p.name as process_name, p.description as process_description
+            FROM process_logs pl
+            JOIN processes p ON pl.process_id = p.id
+            WHERE pl.batch_id = :batch_id
+            ORDER BY pl.start_date DESC, pl.id DESC
+        ');
+        $stmt->execute(['batch_id' => $batchId]);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
 }

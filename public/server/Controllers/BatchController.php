@@ -605,4 +605,52 @@ class BatchController extends BaseController
         return $finalComposition;
     }
 
+    /**
+     * Собирает и возвращает полную, детализированную информацию о партии.
+     * Включает состав, историю процессов и все связанные замеры.
+     * @param int $id ID партии.
+     */
+    public function getDetails($id)
+    {
+        $batchModel = new \Models\Batch();
+        $batch = $batchModel->findById($id);
+
+        // 1. Проверка, что партия существует и принадлежит пользователю
+        if (!$batch || $batch['user_id'] != $this->userId) {
+            http_response_code(404);
+            echo json_encode(['error' => 'Партия не найдена или у вас нет к ней доступа.']);
+            exit;
+        }
+
+        // 2. Получаем "генетический" состав партии
+        $compositionRaw = $this->getBatchComposition($id);
+        $composition = [];
+        $sortsModel = new \Models\GrapeSort(); // Используем модель для получения имен
+        foreach ($compositionRaw as $sortId => $percentage) {
+            $sortInfo = $sortsModel->findById($sortId); // Метод findById нужно будет добавить в GrapeSort
+            $composition[] = [
+                'sort_name' => $sortInfo['name'] ?? 'Неизвестный сорт',
+                'percentage' => $percentage
+            ];
+        }
+
+        // 3. Получаем историю процессов (process_logs)
+        $processLogModel = new \Models\ProcessLog();
+        $logs = $processLogModel->getLogsByBatchWithProcessName($id); // Нам нужен JOIN, чтобы получить имя процесса
+
+        // 4. Для каждого процесса получаем его замеры (measurements)
+        $measurementModel = new \Models\Measurement();
+        foreach ($logs as $key => $log) {
+            $logs[$key]['measurements'] = $measurementModel->getMeasurementsByProcessLog($log['id']);
+        }
+
+        // 5. Собираем все в один большой объект
+        $details = [
+            'batch_info' => $batch,
+            'composition' => $composition,
+            'process_logs' => $logs
+        ];
+
+        echo json_encode($details);
+    }
 }

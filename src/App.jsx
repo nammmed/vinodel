@@ -11,6 +11,7 @@ import SuppliesPage from "./pages/SuppliesPage";
 import { AuthContext } from './context/AuthContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import BatchDetailPage from "./pages/BatchDetailPage";
 
 const ProtectedRoute = ({ children }) => {
     const { authenticated } = useContext(AuthContext);
@@ -34,6 +35,7 @@ function App() {
                         {/* Погреб */}
                         <Route path="/fruits" element={<ProtectedRoute><FruitStockPage /></ProtectedRoute>} />
                         <Route path="/batches" element={<ProtectedRoute><div>Список партий (в разработке)</div></ProtectedRoute>} />
+                        <Route path="/batches/:batchId" element={<ProtectedRoute><BatchDetailPage /></ProtectedRoute>} />
 
                         {/* Рецепты */}
                         <Route path="/recipes" element={<ProtectedRoute><RecipeList /></ProtectedRoute>} />

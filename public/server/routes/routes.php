@@ -55,6 +55,7 @@ $routes = [
         '/batches/(\d+)/components' => [BatchComponentController::class, 'index'],
         '/batches/(\d+)/processes' => [ProcessLogController::class, 'index'],
         '/batches/{id}/bottling-plan' => [BatchController::class, 'getBottlingPlan'],
+        '/batches/(\d+)/details' => [BatchController::class, 'getDetails'],
 
         '/processes' => [ProcessController::class, 'index'],
 

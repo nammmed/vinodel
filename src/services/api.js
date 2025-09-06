@@ -31,6 +31,7 @@ export const getBatchById = (id) => api.get(`/batches/${id}`);
 export const createBatch = (data) => api.post('/batches', data);
 export const createBatchFromGrape = (grapeId, data) => api.post(`/grapes/${grapeId}/vinify`, data);
 export const splitBatch = (batchId, data) => api.post(`/batches/${batchId}/split`, data);
+export const getBatchDetails = (id) => api.get(`/batches/${id}/details`);
 
 // Купажирование
 export const blendBatches = (data) => api.post('/batches/blend', data);

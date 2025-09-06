@@ -157,3 +157,5 @@ function BottlingWizardModal({ show, onClose, batch, supplies, onSuccess }) {
         </Modal>
     );
 }
+
+export default BottlingWizardModal;
