@@ -32,11 +32,15 @@ function NewBatchForm({ingredient, onSubmit, onClose}) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (!formData.quantity || formData.quantity <= 0 || formData.quantity > ingredient.quantity) {
+        const quantityToProcess = parseFloat(formData.quantity);
+        const availableQuantity = parseFloat(ingredient.quantity);
+        const juiceVolume = parseFloat(formData.juice_volume);
+
+        if (isNaN(quantityToProcess) || quantityToProcess <= 0 || quantityToProcess > availableQuantity) {
             toast.warn('Некорректное количество для партии.');
             return;
         }
-        if (!formData.juice_volume || formData.juice_volume <= 0) {
+        if (isNaN(juiceVolume) || juiceVolume <= 0) {
             toast.warn('Укажите корректный объем сока.');
             return;
         }
